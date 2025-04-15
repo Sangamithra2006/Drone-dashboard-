@@ -1,0 +1,34 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Drone Dashboard</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #f4f4f4; padding: 20px; }
+        .card { background: white; padding: 20px; margin: 10px 0; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        h2 { margin-top: 0; }
+    </style>
+</head>
+<body>
+    <h1>Drone Telemetry Dashboard</h1>
+    <div class="card" id="battery">Battery: </div>
+    <div class="card" id="imu">IMU: </div>
+    <div class="card" id="gps">GPS: </div>
+    <div class="card" id="temperature">Temperature: </div>
+    <div class="card" id="signal">Signal Strength: </div>
+
+    <script>
+        const ws = new WebSocket("ws://localhost:8000/ws");
+
+        ws.onmessage = (event) => {
+            const data = JSON.parse(event.data);
+            document.getElementById("battery").innerText = `Battery: ${data.battery} V`;
+            document.getElementById("imu").innerText = `IMU - Roll: ${data.imu.roll}, Pitch: ${data.imu.pitch}, Yaw: ${data.imu.yaw}`;
+            document.getElementById("gps").innerText = `GPS - Lat: ${data.gps.lat}, Lon: ${data.gps.lon}, Alt: ${data.gps.alt}`;
+            document.getElementById("temperature").innerText = `Temperature: ${data.temperature} °C`;
+            document.getElementById("signal").innerText = `Signal Strength: ${data.signal}`;
+        };
+    </script>
+</body>
+</html>
