@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Drone Dashboard</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f0f2f5;
+      padding: 20px;
+    }
+    .card {
+      background: white;
+      padding: 20px;
+      margin: 10px 0;
+      border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    h1 { color: #333; }
+    #map { height: 300px; border-radius: 10px; }
+    canvas { max-width: 100%; }
+  </style>
+</head>
+<body>
+  <h1>Drone Telemetry Dashboard</h1>
+
+  <div class="card" id="status">Status: <span style="color: orange;">Connecting...</span></div>
+  <div class="card" id="battery">Battery: </div>
+  <div class="card" id="imu">IMU: </div>
+  <div class="card" id="orientation">Orientation (Pitch, Roll, Yaw): </div>
+  <div class="card" id="acceleration">Acceleration (X, Y, Z): </div>
+  <div class="card" id="gps">GPS: </div>
+  <div class="card" id="speed">Speed: </div>
+  <div class="card" id="heading">Heading: </div>
+  <div class="card" id="altitude">Altitude: </div>
+  <div class="card" id="temperature">Temperature: </div>
+  <div class="card" id="signal">Signal Strength: </div>
+  <div class="card"><h2>Live Location</h2><div id="map"></div></div>
+  <div class="card"><h2>IMU Orientation Chart</h2><canvas id="imuChart"></canvas></div>
+
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+    const ws = new WebSocket("ws://localhost:8000/ws");
+
+    ws.onopen = () => {
+      document.getElementById("status").innerHTML = 'Status: <span style="color: green;">Connected</span>';
+    };
+    ws.onerror = () => {
+      document.getElementById("status").innerHTML = 'Status: <span style="color: red;">Error</span>';
+    };
+    ws.onclose = () => {
+      document.getElementById("status").innerHTML = 'Status: <span style="color: red;">Disconnected</span>';
+    };
+
+    const map = L.map('map').setView([12.9716, 77.5946], 13);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(map);
+    const marker = L.marker([12.9716, 77.5946]).addTo(map);
+
+    const ctx = document.getElementById('imuChart').getContext('2d');
+    const imuChart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: [],
+        datasets: [
+          { label: 'Pitch', borderColor: 'red', data: [] },
+          { label: 'Roll', borderColor: 'blue', data: [] },
+          { label: 'Yaw', borderColor: 'green', data: [] }
+        ]
+      },
+      options: {
+        scales: {
+          y: { beginAtZero: true },
+          x: { ticks: { display: false } }
+        }
+      }
+    });
+
+    ws.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+
+      if (data.battery < 10) {
+        alert("Battery Low! Please land the drone safely.");
+      }
+
+      document.getElementById("battery").innerText = `Battery: ${data.battery} V`;
+      document.getElementById("imu").innerText = `Gyroscope - X: ${data.imu.gyro_x}°/s, Y: ${data.imu.gyro_y}°/s, Z: ${data.imu.gyro_z}°/s`;
+      document.getElementById("orientation").innerText = `Pitch: ${data.imu.pitch}°, Roll: ${data.imu.roll}°, Yaw: ${data.imu.yaw}°`;
+      document.getElementById("acceleration").innerText = `Accel - X: ${data.imu.accel_x} m/s², Y: ${data.imu.accel_y} m/s², Z: ${data.imu.accel_z} m/s²`;
+      document.getElementById("gps").innerText = `GPS - Lat: ${data.gps.lat}, Lon: ${data.gps.lon}`;
+      document.getElementById("speed").innerText = `Speed: ${data.gps.speed} m/s`;
+      document.getElementById("heading").innerText = `Heading: ${data.gps.heading}°`;
+      document.getElementById("altitude").innerText = `Altitude: ${data.gps.alt} m`;
+      document.getElementById("temperature").innerText = `Temperature: ${data.temperature} °C`;
+      document.getElementById("signal").innerText = `Signal Strength: ${data.signal}`;
+
+      marker.setLatLng([data.gps.lat, data.gps.lon]);
+      map.setView([data.gps.lat, data.gps.lon]);
+
+      const time = new Date().toLocaleTimeString();
+      imuChart.data.labels.push(time);
+      imuChart.data.datasets[0].data.push(data.imu.pitch);
+      imuChart.data.datasets[1].data.push(data.imu.roll);
+      imuChart.data.datasets[2].data.push(data.imu.yaw);
+      if (imuChart.data.labels.length > 20) {
+        imuChart.data.labels.shift();
+        imuChart.data.datasets.forEach(ds => ds.data.shift());
+      }
+      imuChart.update();
+    };
+  </script>
+</body>
+</html>
