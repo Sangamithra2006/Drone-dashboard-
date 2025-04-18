@@ -42,7 +42,7 @@
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script>
-    const ws = new WebSocket("ws://localhost:8000/ws");
+    const ws = new WebSocket("ws://127.0.0.1:8000/ws");
 
     ws.onopen = () => {
       document.getElementById("status").innerHTML = 'Status: <span style="color: green;">Connected</span>';
