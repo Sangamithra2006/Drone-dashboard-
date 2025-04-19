@@ -1,4 +1,3 @@
-
 from fastapi import FastAPI, WebSocket
 from fastapi.middleware.cors import CORSMiddleware
 import random
@@ -6,6 +5,7 @@ import asyncio
 
 app = FastAPI()
 
+# Allow CORS for frontend
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -13,6 +13,11 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Root endpoint for your frontend HTML
+@app.get("/")
+def read_root():
+    return {"message": "Welcome to the Drone Dashboard API!"}
 
 @app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):
@@ -35,3 +40,8 @@ async def websocket_endpoint(websocket: WebSocket):
         }
         await websocket.send_json(data)
         await asyncio.sleep(1)
+
+import uvicorn
+
+if __name__ == "__main__":
+    uvicorn.run("main:app", host="0.0.0.0", port=9000)
