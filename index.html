@@ -42,7 +42,7 @@
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script>
-    const ws = new WebSocket("ws://127.0.0.1:8000/ws");
+    const ws = new WebSocket("ws://127.0.0.1:9000/ws");
 
     ws.onopen = () => {
       document.getElementById("status").innerHTML = 'Status: <span style="color: green;">Connected</span>';
@@ -85,12 +85,12 @@
       }
 
       document.getElementById("battery").innerText = `Battery: ${data.battery} V`;
-      document.getElementById("imu").innerText = `IMU - Roll: ${data.imu.roll}°, Pitch: ${data.imu.pitch}°, Yaw: ${data.imu.yaw}°`;
+      document.getElementById("imu").innerText = `Gyroscope - X: ${data.imu.gyro_x || '-'}°/s, Y: ${data.imu.gyro_y || '-'}°/s, Z: ${data.imu.gyro_z || '-'}°/s`;
       document.getElementById("orientation").innerText = `Pitch: ${data.imu.pitch}°, Roll: ${data.imu.roll}°, Yaw: ${data.imu.yaw}°`;
-      document.getElementById("acceleration").innerText = `Accel - X: ${data.imu.accel_x} m/s², Y: ${data.imu.accel_y} m/s², Z: ${data.imu.accel_z} m/s²`;
+      document.getElementById("acceleration").innerText = `Accel - X: ${data.imu.accel_x || '-'} m/s², Y: ${data.imu.accel_y || '-'} m/s², Z: ${data.imu.accel_z || '-'} m/s²`;
       document.getElementById("gps").innerText = `GPS - Lat: ${data.gps.lat}, Lon: ${data.gps.lon}`;
-      document.getElementById("speed").innerText = `Speed: ${data.gps.speed} m/s`;
-      document.getElementById("heading").innerText = `Heading: ${data.gps.heading}°`;
+      document.getElementById("speed").innerText = `Speed: ${data.gps.speed || '-'} m/s`;
+      document.getElementById("heading").innerText = `Heading: ${data.gps.heading || '-'}°`;
       document.getElementById("altitude").innerText = `Altitude: ${data.gps.alt} m`;
       document.getElementById("temperature").innerText = `Temperature: ${data.temperature} °C`;
       document.getElementById("signal").innerText = `Signal Strength: ${data.signal}`;
