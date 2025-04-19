@@ -85,7 +85,7 @@
       }
 
       document.getElementById("battery").innerText = `Battery: ${data.battery} V`;
-      document.getElementById("imu").innerText = `Gyroscope - X: ${data.imu.gyro_x}°/s, Y: ${data.imu.gyro_y}°/s, Z: ${data.imu.gyro_z}°/s`;
+      document.getElementById("imu").innerText = `IMU - Roll: ${data.imu.roll}°, Pitch: ${data.imu.pitch}°, Yaw: ${data.imu.yaw}°`;
       document.getElementById("orientation").innerText = `Pitch: ${data.imu.pitch}°, Roll: ${data.imu.roll}°, Yaw: ${data.imu.yaw}°`;
       document.getElementById("acceleration").innerText = `Accel - X: ${data.imu.accel_x} m/s², Y: ${data.imu.accel_y} m/s², Z: ${data.imu.accel_z} m/s²`;
       document.getElementById("gps").innerText = `GPS - Lat: ${data.gps.lat}, Lon: ${data.gps.lon}`;
